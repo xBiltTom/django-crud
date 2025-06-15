@@ -25,3 +25,8 @@ def acceder(request):
 def homePage(request):
     context={}
     return render(request,"bienvenido.html",context)
+
+def salir(request):
+    logout(request)
+    messages.info(request,"Saliste exitosamente")
+    return redirect("login")
