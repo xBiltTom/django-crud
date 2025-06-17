@@ -4,7 +4,7 @@
     <div class="card card-outline card-info mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h1 class="card-title mb-0">LISTADO DE CATEGORIAS</h1>
-            <a href="{% url 'agregarcategoria' %}" class="btn btn-sm btn-primary btn-add"><i class="fas fa-plus"></i> NUEVO</a>
+            <a href="{% url 'categorias:agregarcategoria' %}" class="btn btn-sm btn-primary btn-add"><i class="fas fa-plus"></i> NUEVO</a>
         </div>
 
         <div class="card-body">
@@ -39,7 +39,7 @@
                         <td>{{ itemcategoria.id }}</td>
                         <td>{{ itemcategoria.descripcion }}</td>
                         <td style="text-align: center;">
-                            <a href="{% url 'editarcategoria' itemcategoria.id %}" class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Editar</a>
+                            <a href="{% url 'categorias:editarcategoria' itemcategoria.id %}" class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Editar</a>
                             <a href="#" onclick="eliminarcategoria('{{itemcategoria.id}}','{{itemcategoria.descripcion}}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Eliminar</a>
                         </td>
                     </tr>
@@ -87,7 +87,7 @@
             "confirmButtonColor":"#dc3545",
         }).then(function(result){
             if (result.isConfirmed) {
-                window.location.href = "{% url 'eliminarcategoria' 0 %}".replace('/0/', '/' + id + '/');
+                window.location.href = "{% url 'categorias:eliminarcategoria' 0 %}".replace('/0/', '/' + id + '/');
             }
         })
     }
