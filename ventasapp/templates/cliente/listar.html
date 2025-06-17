@@ -1,0 +1,103 @@
+{% extends "plantilla.html" %}
+{% block content %}
+<div class="container">
+    <div class="card card-outline card-info mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1 class="card-title mb-0">LISTADO DE CLIENTES</h1>
+            <a href="{% url 'agregarcliente' %}" class="btn btn-sm btn-primary btn-add"><i class="fas fa-plus"></i> NUEVO</a>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6 pull-right">
+                    <form action="" method="GET">
+                        <div class="input-group">
+                            <input type="text" name="buscar" id="buscar" class="form-control" autofocus placeholder="Buscar" value="" >
+                            <span class="input-group-append">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table id="tablasubfamilias" class="table table-striped mt-4" style="width:100%">
+                <thead class="bg-info text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>NOMBRES</th>
+                        <th>APELLIDOS</th>
+                        <th>DIRECCIÓN</th>
+                        <th>EMAIL</th>
+                        <th>TELÉFONO</th>
+                        <th><center>OPCIONES</center></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if cliente %}
+                    {% for itemcliente in cliente %}
+                    <tr>
+                        <td>{{ itemcliente.idcliente }}</td>
+                        <td>{{ itemcliente.nombres }}</td>
+                        <td>{{ itemcliente.apellidos }}</td>
+                        <td>{{ itemcliente.direccion|default:"-" }}</td>
+                        <td>{{ itemcliente.email|default:"-" }}</td>
+                        <td>{{ itemcliente.telefono|default:"-" }}</td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'editarcliente' itemcliente.idcliente %}" class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Editar</a>
+                            <a href="#" onclick="eliminarcliente('{{ itemcliente.idcliente }}', '{{ itemcliente.nombres }} {{ itemcliente.apellidos }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Eliminar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr style="text-align: center;">
+                        <td colspan="3">
+                            <p>No hay Registros</p>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+    {% for m in messages %}
+    <script>
+        Swal.fire({
+            title: "Eliminado",
+            text: "{{ m }}",
+            icon: "success"
+        })
+    </script>
+    {% endfor %}
+{% endif %}
+
+<script>
+    function eliminarcliente(id, nombres, apellidos) {
+    Swal.fire({
+        "title": "¿Realmente desea eliminar el cliente?",
+        "text": "Código: " + id + " - Nombre: " + nombres + " " + apellidos,
+        "icon": 'question',
+        "showCancelButton": true,
+        "cancelButtonText": "NO",
+        "confirmButtonText": "SI",
+        "reverseButtons": true,
+        "confirmButtonColor": "#dc3545",
+    }).then(function(result){
+        if (result.isConfirmed) {
+            window.location.href = "{% url 'eliminarcliente' 0 %}".replace('/0/', '/' + id + '/');
+        }
+    })
+}
+</script>
+{% endblock %}
