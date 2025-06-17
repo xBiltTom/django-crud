@@ -14,7 +14,7 @@ class Cliente(models.Model):
         
 class Categoria(models.Model):
     descripcion = models.CharField(max_length=30)
-    estado = models.BooleanField()
+    estado = models.BooleanField(default=True)
     
 class Productos(models.Model):
     descripcion = models.CharField(max_length=40)
