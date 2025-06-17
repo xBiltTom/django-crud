@@ -3,8 +3,8 @@
 <div class="container">
     <div class="card card-outline card-info mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h1 class="card-title mb-0">LISTADO DE CLIENTES</h1>
-            <a href="{% url 'clientes:agregarcliente' %}" class="btn btn-sm btn-primary btn-add"><i class="fas fa-plus"></i> NUEVO</a>
+            <h1 class="card-title mb-0">LISTADO DE UNIDADES</h1>
+            <a href="{% url 'unidades:agregarunidad' %}" class="btn btn-sm btn-primary btn-add"><i class="fas fa-plus"></i> NUEVO</a>
         </div>
 
         <div class="card-body">
@@ -28,27 +28,19 @@
                 <thead class="bg-info text-white">
                     <tr>
                         <th>ID</th>
-                        <th>NOMBRES</th>
-                        <th>APELLIDOS</th>
-                        <th>DIRECCIÓN</th>
-                        <th>EMAIL</th>
-                        <th>TELÉFONO</th>
+                        <th>DESCRIPCION</th>
                         <th><center>OPCIONES</center></th>
                     </tr>
                 </thead>
                 <tbody>
-                {% if cliente %}
-                    {% for itemcliente in cliente %}
+                {% if unidades %}
+                    {% for unidad in unidades %}
                     <tr>
-                        <td>{{ itemcliente.idcliente }}</td>
-                        <td>{{ itemcliente.nombres }}</td>
-                        <td>{{ itemcliente.apellidos }}</td>
-                        <td>{{ itemcliente.direccion|default:"-" }}</td>
-                        <td>{{ itemcliente.email|default:"-" }}</td>
-                        <td>{{ itemcliente.telefono|default:"-" }}</td>
+                        <td>{{ unidad.id }}</td>
+                        <td>{{ unidad.descripcion }}</td>
                         <td style="text-align: center;">
-                            <a href="{% url 'clientes:editarcliente' itemcliente.idcliente %}" class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Editar</a>
-                            <a href="#" onclick="eliminarcliente('{{ itemcliente.idcliente }}', '{{ itemcliente.nombres }}' ,'{{ itemcliente.apellidos }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Eliminar</a>
+                            <a href="{% url 'unidades:editarunidad' unidad.id %}" class="btn btn-info btn-sm"><i class="fa fa-edit"></i> Editar</a>
+                            <a href="#" onclick="eliminarunidad('{{ unidad.id }}', '{{ unidad.descripcion }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Eliminar</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -83,10 +75,10 @@
 {% endif %}
 
 <script>
-    function eliminarcliente(id, nombres, apellidos) {
+    function eliminarunidad(id, descripcion) {
     Swal.fire({
         "title": "¿Realmente desea eliminar el cliente?",
-        "text": "Código: " + id + " - Nombre: " + nombres + " " + apellidos ,
+        "text": "Código: " + id + " - Descripcion: " + descripcion ,
         "icon": 'question',
         "showCancelButton": true,
         "cancelButtonText": "NO",
@@ -95,7 +87,7 @@
         "confirmButtonColor": "#dc3545",
     }).then(function(result){
         if (result.isConfirmed) {
-            window.location.href = "{% url 'clientes:eliminarcliente' 0 %}".replace('/0/', '/' + id + '/');
+            window.location.href = "{% url 'unidades:eliminarunidad' 0 %}".replace('/0/', '/' + id + '/');
         }
     })
 }

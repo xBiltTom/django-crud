@@ -1,25 +1,27 @@
 {% extends "plantilla.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-    {% load crispy_forms_tags %}
 <div class="container">
+    
     <div class="card card-info mx-4 my-4">
         <div class="card-header">
-            <h1 class="card-title">EDITAR CATEGORIA</h1>
+            <h1 class="card-title">AGREGAR UNIDAD</h1>
         </div>
 
         <div class="card-body">
-            <form action="" method="POST">
+            <form method="POST">
                 {% csrf_token %}
-                {{ form|crispy }}
+                {{ form | crispy }}
                 <div class="d-flex justify-content-end">
-                    <a href="{% url 'categorias:listarcategoria' %}" class="btn btn-secondary">Cancelar</a>
+                    <a href="{% url 'unidades:listarunidades' %}" class="btn btn-secondary">Cancelar</a>
                     &nbsp;
-                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
 
     </div>
+
 </div>
 
 {% endblock %}

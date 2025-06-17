@@ -1,9 +1,12 @@
 from django.shortcuts import render,redirect
 from ventasapp.models import Categoria
 from ventasapp.models import Cliente
+from ventasapp.models import Unidades
+from ventasapp.models import Productos
 from django.db.models import Q
 from .forms import CategoriaForm
 from .forms import ClienteForm
+from .forms import UnidadForm
 
 # Create your views here.
 def listarcategoria(request):
@@ -22,7 +25,7 @@ def agregarcategoria(request):
         form = CategoriaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('listarcategoria')
+            return redirect('categorias:listarcategoria')
     else:
         form = CategoriaForm()
     context = {
@@ -36,7 +39,7 @@ def editarcategoria(request, id):
         form = CategoriaForm(request.POST, instance=categoria)
         if form.is_valid():
             form.save()
-            return redirect('listarcategoria')
+            return redirect('categorias:listarcategoria')
     else:
         form = CategoriaForm(instance=categoria)
     context = {
@@ -66,7 +69,7 @@ def agregarcliente(request):
         form = ClienteForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('listarcliente')
+            return redirect('clientes:listarcliente')
     else:
         form = ClienteForm()
     context = {
@@ -80,7 +83,7 @@ def editarcliente(request, id):
         form = ClienteForm(request.POST, instance=cliente)
         if form.is_valid():
             form.save()
-            return redirect('listarcliente')
+            return redirect('clientes:listarcliente')
     else:
         form = ClienteForm(instance=cliente)
     context = {
@@ -92,7 +95,47 @@ def eliminarcliente(request, id):
     cliente = Cliente.objects.get(idcliente=id)
     cliente.estado = False
     cliente.save()
-    return redirect('listarcliente')
+    return redirect('clientes:listarcliente')
 
+def listarunidades(request):
+    queryset = request.GET.get("buscar")
+    unidad = Unidades.objects.all()
+    if queryset:
+        unidad = unidad.filter(
+            Q(descripcion__icontains=queryset)
+        ).distinct()
+    context = {
+            'unidades':unidad}
+    return render(request,"unidades/listar.html",context)
 
+def agregarunidades(request):
+    if request.method == 'POST':
+        form = UnidadForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('unidades:listarunidades')
+    else:
+        form = UnidadForm()
+    context = {
+        'form':form,
+    }
+    return render(request, "unidades/agregar.html", context)
 
+def editarunidad(request, id):
+    unidad = Unidades.objects.get(id=id)
+    if request.method == 'POST':
+        form = UnidadForm(request.POST, instance=unidad)
+        if form.is_valid():
+            form.save()
+            return redirect('unidades:listarunidades')
+    else:
+        form = UnidadForm(instance=unidad)
+    context = {
+        'form': form,
+    }
+    return render(request, "unidades/editar.html", context)
+
+def eliminarunidad(request, id):
+    unidad = Unidades.objects.get(id=id)
+    unidad.delete()
+    return redirect('unidades:listarunidades')
