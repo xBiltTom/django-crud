@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.views import generic 
+from django.contrib.auth.decorators import login_required
 
 def acceder(request):
     if request.method=="POST":
@@ -22,10 +23,12 @@ def acceder(request):
     form = AuthenticationForm()
     return render(request,"login.html",{"form":form})
 
+@login_required
 def homePage(request):
     context={}
     return render(request,"bienvenido.html",context)
 
+@login_required
 def salir(request):
     logout(request)
     messages.info(request,"Saliste exitosamente")

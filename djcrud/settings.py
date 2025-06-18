@@ -150,3 +150,4 @@ MESSAGE_TAGS={
     message_constants.ERROR:'danger', 
 }
 
+LOGIN_URL = 'login'

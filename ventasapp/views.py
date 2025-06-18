@@ -7,6 +7,7 @@ from django.db.models import Q
 from .forms import CategoriaForm
 from .forms import ClienteForm
 from .forms import UnidadForm
+from .forms import ProductoForm
 
 # Create your views here.
 def listarcategoria(request):
@@ -99,7 +100,7 @@ def eliminarcliente(request, id):
 
 def listarunidades(request):
     queryset = request.GET.get("buscar")
-    unidad = Unidades.objects.all()
+    unidad = Unidades.objects.filter(estado=True)
     if queryset:
         unidad = unidad.filter(
             Q(descripcion__icontains=queryset)
@@ -137,5 +138,50 @@ def editarunidad(request, id):
 
 def eliminarunidad(request, id):
     unidad = Unidades.objects.get(id=id)
-    unidad.delete()
+    unidad.estado = False
+    unidad.save()
     return redirect('unidades:listarunidades')
+
+def listarproductos(request):
+    queryset = request.GET.get("buscar")
+    producto = Productos.objects.filter(estado=True)
+    if queryset:
+        producto = producto.filter(
+            Q(descripcion__icontains=queryset),estado=True
+        ).distinct()
+    context = {
+            'productos':producto}
+    return render(request,"productos/listar.html",context)
+
+def agregarproductos(request):
+    if request.method == 'POST':
+        form = ProductoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('productos:listarproductos')
+    else:
+        form = ProductoForm()
+    context = {
+        'form':form,
+    }
+    return render(request, "productos/agregar.html", context)
+
+def editarproducto(request, id):
+    producto = Productos.objects.get(id=id)
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, instance=producto)
+        if form.is_valid():
+            form.save()
+            return redirect('productos:listarproductos')
+    else:
+        form = UnidadForm(instance=producto)
+    context = {
+        'form': form,
+    }
+    return render(request, "productos/editar.html", context)
+
+def eliminarproducto(request, id):
+    producto = Productos.objects.get(id=id)
+    producto.estado = False
+    producto.save()
+    return redirect('productos:listarproductos')
