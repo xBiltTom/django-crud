@@ -3,6 +3,7 @@ from django.forms import fields
 from .models import Categoria
 from .models import Cliente
 from .models import Unidades as Unidad
+from .models import Productos
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -17,4 +18,9 @@ class ClienteForm(forms.ModelForm):
 class UnidadForm(forms.ModelForm):
     class Meta:
         model = Unidad
-        fields = ['descripcion']
+        fields = ['descripcion','estado']
+        
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Productos
+        fields = ['descripcion','categoria','unidad','precio','cantidad','estado']
