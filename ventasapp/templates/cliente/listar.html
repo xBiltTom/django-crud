@@ -1,5 +1,31 @@
 {% extends "plantilla.html" %}
 {% block content %}
+{% if messages %}
+{% for message in messages %}
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+    Toast.fire({
+        icon: "success",
+        title: "{{ message }}"
+    });
+    </script>
+{% endfor %}
+{% endif %}
+
+
+
+
 <div class="container-fluid">
     <div class="card mt-3 border-0 shadow-sm">
         <div class="card-header" style="background-color: #1e3947; color: white;">
@@ -85,18 +111,7 @@
 
 {% block js %}
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-{% if messages %}
-    {% for m in messages %}
-    <script>
-        Swal.fire({
-            title: "Eliminado",
-            text: "{{ m }}",
-            icon: "success",
-            confirmButtonColor: "#3c8dbc"
-        })
-    </script>
-    {% endfor %}
-{% endif %}
+
 
 <script>
     function eliminarcliente(id, nombres, apellidos) {

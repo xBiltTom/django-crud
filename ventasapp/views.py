@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.contrib.auth.decorators import login_required 
 from ventasapp.models import Categoria
 from ventasapp.models import Cliente
 from ventasapp.models import Unidades
@@ -8,8 +9,10 @@ from .forms import CategoriaForm
 from .forms import ClienteForm
 from .forms import UnidadForm
 from .forms import ProductoForm
+from django.contrib import messages
 
 # Create your views here.
+@login_required
 def listarcategoria(request):
     queryset = request.GET.get("buscar")
     categoria = Categoria.objects.filter(estado=True)
@@ -21,11 +24,13 @@ def listarcategoria(request):
             'categoria':categoria}
     return render(request,"categoria/listar.html",context)
 
+@login_required
 def agregarcategoria(request):
     if request.method == 'POST':
         form = CategoriaForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Categoría agregada correctamente")
             return redirect('categorias:listarcategoria')
     else:
         form = CategoriaForm()
@@ -34,12 +39,14 @@ def agregarcategoria(request):
     }
     return render(request, "categoria/agregar.html", context)
 
+@login_required
 def editarcategoria(request, id):
     categoria = Categoria.objects.get(id=id)
     if request.method == 'POST':
         form = CategoriaForm(request.POST, instance=categoria)
         if form.is_valid():
             form.save()
+            messages.success(request, "Categoría actualizada correctamente")
             return redirect('categorias:listarcategoria')
     else:
         form = CategoriaForm(instance=categoria)
@@ -48,12 +55,15 @@ def editarcategoria(request, id):
     }
     return render(request, "categoria/editar.html", context)
 
+@login_required
 def eliminarcategoria(request, id):
     categoria= Categoria.objects.get(id=id)
     categoria.estado = False
+    messages.success(request, "Categoría eliminada correctamente")
     categoria.save()
-    return redirect('listarcategoria')
+    return redirect('categorias:listarcategoria')
 
+@login_required
 def listarcliente(request):
     queryset = request.GET.get("buscar")
     cliente = Cliente.objects.filter(estado=True)
@@ -65,11 +75,13 @@ def listarcliente(request):
             'cliente':cliente}
     return render(request,"cliente/listar.html",context)
 
+@login_required
 def agregarcliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Cliente agregado correctamente")
             return redirect('clientes:listarcliente')
     else:
         form = ClienteForm()
@@ -78,12 +90,14 @@ def agregarcliente(request):
     }
     return render(request, "cliente/agregar.html", context)
 
+@login_required
 def editarcliente(request, id):
     cliente = Cliente.objects.get(idcliente=id)
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)
         if form.is_valid():
             form.save()
+            messages.success(request, "Cliente actualizado correctamente")
             return redirect('clientes:listarcliente')
     else:
         form = ClienteForm(instance=cliente)
@@ -92,12 +106,15 @@ def editarcliente(request, id):
     }
     return render(request, "cliente/editar.html", context)
 
+@login_required
 def eliminarcliente(request, id):
     cliente = Cliente.objects.get(idcliente=id)
     cliente.estado = False
+    messages.success(request, "Cliente eliminado correctamente")
     cliente.save()
     return redirect('clientes:listarcliente')
 
+@login_required
 def listarunidades(request):
     queryset = request.GET.get("buscar")
     unidad = Unidades.objects.filter(estado=True)
@@ -109,11 +126,13 @@ def listarunidades(request):
             'unidades':unidad}
     return render(request,"unidades/listar.html",context)
 
+@login_required
 def agregarunidades(request):
     if request.method == 'POST':
         form = UnidadForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Unidad agregada correctamente")
             return redirect('unidades:listarunidades')
     else:
         form = UnidadForm()
@@ -122,12 +141,14 @@ def agregarunidades(request):
     }
     return render(request, "unidades/agregar.html", context)
 
+@login_required
 def editarunidad(request, id):
     unidad = Unidades.objects.get(id=id)
     if request.method == 'POST':
         form = UnidadForm(request.POST, instance=unidad)
         if form.is_valid():
             form.save()
+            messages.success(request, "Unidad actualizada correctamente")
             return redirect('unidades:listarunidades')
     else:
         form = UnidadForm(instance=unidad)
@@ -136,12 +157,15 @@ def editarunidad(request, id):
     }
     return render(request, "unidades/editar.html", context)
 
+@login_required
 def eliminarunidad(request, id):
     unidad = Unidades.objects.get(id=id)
     unidad.estado = False
+    messages.success(request, "Unidad eliminada correctamente")
     unidad.save()
     return redirect('unidades:listarunidades')
 
+@login_required
 def listarproductos(request):
     queryset = request.GET.get("buscar")
     producto = Productos.objects.filter(estado=True)
@@ -153,6 +177,7 @@ def listarproductos(request):
             'productos':producto}
     return render(request,"productos/listar.html",context)
 
+@login_required
 def agregarproductos(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
@@ -166,20 +191,23 @@ def agregarproductos(request):
     }
     return render(request, "productos/agregar.html", context)
 
+@login_required
 def editarproducto(request, id):
     producto = Productos.objects.get(id=id)
     if request.method == 'POST':
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
             form.save()
+            messages.success(request, "Producto actualizado correctamente")
             return redirect('productos:listarproductos')
     else:
-        form = UnidadForm(instance=producto)
+        form = ProductoForm(instance=producto)
     context = {
         'form': form,
     }
     return render(request, "productos/editar.html", context)
 
+@login_required
 def eliminarproducto(request, id):
     producto = Productos.objects.get(id=id)
     producto.estado = False

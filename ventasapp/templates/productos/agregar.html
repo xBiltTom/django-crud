@@ -1,0 +1,23 @@
+{% extends "plantilla.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="card card-info mx-4 my-4">
+        <div class="card-header" style="background-color: #1e3947;">
+            <h1 class="card-title">AGREGAR PRODUCTO</h1>
+        </div>
+
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'productos:listarproductos' %}" class="btn btn-secondary">Cancelar</a>
+                    &nbsp;
+                    <button type="submit" class="btn btn-primary" style="background-color: rgb(18, 179, 58); border-color: rgb(18, 179, 58);">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
