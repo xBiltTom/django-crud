@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
     <title>{% block title %}{% endblock %}</title>
+
+
     <link rel="stylesheet" href="{% static '/adminlte/plugins/fontawesomefree/css/all.min.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -12,7 +14,9 @@
     <link rel="stylesheet" href="{% static '/adminlte/plugins/fontawesomefree/css/all.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static '/adminlte/dist/css/adminlte.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'login/css/loginfinal.css' %}">
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -32,10 +36,11 @@
                 <!-- Messages Dropdown Menu -->
                 <!-- Notifications Dropdown Menu -->
                 <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="btn-danger btnblock">
-                        <i class="fa fa-power-off"></i>
+                    <a href="{% url 'logout' %}" class="btn btn-danger ml-2" title="Salir">
+                        <i class="fas fa-power-off "> Salir</i>
                     </a>
                 </li>
+
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -156,6 +161,8 @@
     <script src="{% static '/adminlte/dist/js/adminlte.min.js' %}"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="{% static '/adminlte/dist/js/demo.js' %}"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    
     {% block js %}
     {% endblock %}
 </body>
