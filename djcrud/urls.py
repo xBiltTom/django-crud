@@ -25,4 +25,5 @@ urlpatterns = [
     path('clientes/', include(('ventasapp.urls','ventasapp'),namespace='clientes')),
     path('unidades/', include(('ventasapp.urls','ventasapp'),namespace='unidades')),
     path('productos/', include(('ventasapp.urls','ventasapp'),namespace='productos')),
+    path('ventas/',include(('ventasapp.urls','ventasapp'),namespace='ventas')),
 ]

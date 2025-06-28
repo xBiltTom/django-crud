@@ -13,7 +13,7 @@ class CategoriaForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     class Meta:
         model=Cliente
-        fields=['nombres', 'apellidos','direccion', 'email', 'telefono']
+        fields=['ruc_dni','nombres','apellidos','direccion', 'email', 'telefono']
     
 class UnidadForm(forms.ModelForm):
     class Meta:

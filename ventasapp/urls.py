@@ -3,6 +3,7 @@ from ventasapp.views import listarcategoria,agregarcategoria,editarcategoria,eli
 from ventasapp.views import listarcliente, agregarcliente, editarcliente, eliminarcliente
 from ventasapp.views import listarunidades,agregarunidades,editarunidad,eliminarunidad
 from ventasapp.views import listarproductos,agregarproductos,editarproducto,eliminarproducto
+from ventasapp.views import listarventas
 from django.contrib.auth import views
 
 urlpatterns = [
@@ -32,4 +33,8 @@ urlpatterns += [
     path('agregarproducto/', agregarproductos, name='agregarproductos'),
     path('editarproducto/<int:id>/', editarproducto, name='editarproducto'),
     path('eliminarproducto/<int:id>/', eliminarproducto, name='eliminarproducto'),
+]
+
+urlpatterns += [
+    path('index/',listarventas,name='listarventas'),
 ]

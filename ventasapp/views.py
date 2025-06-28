@@ -4,6 +4,7 @@ from ventasapp.models import Categoria
 from ventasapp.models import Cliente
 from ventasapp.models import Unidades
 from ventasapp.models import Productos
+from ventasapp.models import cabeceraVentas
 from django.db.models import Q
 from .forms import CategoriaForm
 from .forms import ClienteForm
@@ -213,3 +214,19 @@ def eliminarproducto(request, id):
     producto.estado = False
     producto.save()
     return redirect('productos:listarproductos')
+
+@login_required
+def listarventas(request):
+    queryset = request.GET.get("buscar")
+    venta = cabeceraVentas.objects.filter(estado=True)
+    if queryset:
+        venta = venta.filter(
+            Q(total__icontains=queryset) | Q(nrodoc__icontains=queryset), estado=True
+        ).distinct()
+    context = {
+            'ventas':venta}
+    return render(request,"movimiento/registro-ventas/listarventas.html",context)
+
+@login_required
+def crearventa(request):
+    pass
