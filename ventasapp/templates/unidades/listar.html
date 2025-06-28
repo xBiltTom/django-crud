@@ -101,19 +101,6 @@
 
 {% block js %}
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- {% if messages %}
-    {% for m in messages %}
-    <script>
-        Swal.fire({
-            title: "Eliminado",
-            text: "{{ m }}",
-            icon: "success",
-            confirmButtonColor: "#1e3947"
-        })
-    </script>
-    {% endfor %}
-{% endif %} -->
-
 <script>
     function eliminarunidad(id, descripcion) {
         Swal.fire({
