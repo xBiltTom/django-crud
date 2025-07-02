@@ -49,7 +49,8 @@ class VentaForm(forms.Form):
     fecha_venta = forms.DateField(
         label = "Fecha",
         
-        widget = forms.TextInput(attrs={'class': 'form-control text-center', 'autocomplete':'off', 'id' : 'id_fecha_venta'}),
+        widget = forms.TextInput(attrs={'class': 'form-control text-center fp', 'autocomplete':'off', 'id' : 'id_fecha_venta'}),
+
         input_formats = ['%d/%m/%Y', '%Y-%m-%d'], 
     )
 
