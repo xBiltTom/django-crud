@@ -17,6 +17,15 @@ class ClienteForm(forms.ModelForm):
     class Meta:
         model=Cliente
         fields=['ruc_dni','nombres','apellidos','direccion', 'email', 'telefono']
+        labels = {
+            'ruc_dni': 'RUC o DNI',  
+            'nombres': 'Nombres',
+            'apellidos': 'Apellidos',
+            'direccion': 'Dirección',
+            'email': 'Correo Electrónico',
+            'telefono': 'Teléfono',
+        }
+        
     
 class UnidadForm(forms.ModelForm):
     class Meta:
@@ -63,7 +72,7 @@ class VentaForm(forms.Form):
     )
 
     nrodoc = forms.CharField(
-        label = "Nro. Documento",
+        label = "N° Operacion",
         required = False, 
         widget = forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'id' : 'id_nrodoc' })
     )

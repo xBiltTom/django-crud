@@ -62,8 +62,8 @@ class Tipo(models.Model):
     
 class Parametros(models.Model):
     tipo_id = models.OneToOneField(Tipo, on_delete=models.CASCADE,primary_key=True)
-    numeracion = models.CharField(max_length=15)
-    serie = models.CharField(max_length=3)
+    numeracion = models.CharField(max_length=8)
+    serie = models.CharField(max_length=4)
 
     def __str__(self):
         return f"{self.tipo_id.descripcion} - Serie: {self.serie}. Nro: {self.numeracion}"
@@ -84,7 +84,7 @@ class cabeceraVentas(models.Model):
     tipo_id = models.ForeignKey(Tipo,on_delete=models.CASCADE)
     estado = models.BooleanField(default=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    nrodoc = models.CharField(max_length=12)
+    nrodoc = models.CharField(max_length=13)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     igv = models.DecimalField(max_digits=10, decimal_places=2)
 
