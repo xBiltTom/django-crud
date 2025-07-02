@@ -3,9 +3,9 @@ from ventasapp.views import listarcategoria,agregarcategoria,editarcategoria,eli
 from ventasapp.views import listarcliente, agregarcliente, editarcliente, eliminarcliente
 from ventasapp.views import listarunidades,agregarunidades,editarunidad,eliminarunidad
 from ventasapp.views import listarproductos,agregarproductos,editarproducto,eliminarproducto
-from ventasapp.views import listarventas
+from ventasapp.views import listarventas, crearventa, obtener_datos_cliente, obtener_datos_producto, obtener_datos_tipo_documento
 from django.contrib.auth import views
-
+from . import views
 urlpatterns = [
     path('listarcategoria/', listarcategoria, name='listarcategoria'),
     path('agregarcategoria/', agregarcategoria, name='agregarcategoria'),
@@ -36,5 +36,11 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('index/',listarventas,name='listarventas'),
+    path('ventas/',listarventas,name='listarventas'),
+    path('ventas/crear', crearventa, name = 'crearventa'),
+    path('ventas/eliminar/<int:pk>/', views.eliminarventa, name='eliminarventa'),
+    path('api/obtener_datos_producto/', obtener_datos_producto, name = 'api_obtener_datos_producto'),
+    path('api/obtener_datos_cliente/', obtener_datos_cliente, name = 'api_obtener_datos_cliente'),
+    path('api/obtener_datos_tipo_documento/', obtener_datos_tipo_documento, name= 'api_obtener_datos_tipo_documento')
+    
 ]

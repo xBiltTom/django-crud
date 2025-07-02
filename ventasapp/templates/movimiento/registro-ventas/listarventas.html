@@ -5,7 +5,7 @@
     <div class="card mt-3 border-0 shadow-sm">
         <div class="card-header" style="background-color: #1e3947; color: white;">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="card-title mb-0 font-weight-bold">LISTADO DE CLIENTES</h1>
+                <h1 class="card-title mb-0 font-weight-bold">LISTADO DE VENTAS</h1> 
                 <div class="d-flex">
                     <form action="" method="GET" class="mr-2">
                         <div class="input-group">
@@ -18,7 +18,7 @@
                             </div>
                         </div>
                     </form>
-                    <a href="{% url 'clientes:agregarcliente' %}" class="btn btn-light btn-sm" style="background-color: #f4f4f4;">
+                    <a href="{% url 'ventas:crearventa' %}" class="btn btn-light btn-sm" style="background-color: #f4f4f4;">
                         <i class="fas fa-plus" style="color: #1e3947;"></i> NUEVO
                     </a>
                 </div>
@@ -30,26 +30,32 @@
                 <table id="tablasubfamilias" class="table table-hover" style="width:100%">
                     <thead style="background-color: #f4f4f4;">
                         <tr>
-                            {% comment %} <th class="text-center" style="color: #1e3947;">ID</th> {% endcomment %}
-                            <th style="color: #1e3947;">CODIGO</th>
-                            <th style="color: #1e3947;">DESCRIPCION</th>
+                            <th style="color: #1e3947;">CÓDIGO</th>
+                            <th style="color: #1e3947;">DESCRIPCIÓN</th> 
                             <th style="color: #1e3947;">FECHA</th>
-                            <th style="color: #1e3947;">RUC/DNI</th>
-                            <th style="color: #1e3947;">NOMBRES/RAZÓN</th>
+                            <th style="color: #1e3947;">RUC/DNI</th> 
+                            <th style="color: #1e3947;">NOMBRES/RAZÓN</th> 
                             <th style="color: #1e3947;">TOTAL</th>
+                            <th class="text-center" style="color: #0b2838;">OPCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if ventas %}
                             {% for venta in ventas %}
                             <tr>
-                                {% comment %} <td class="text-center">{{ itemcliente.idcliente }}</td> {% endcomment %}
-                                <td class="text-center">{{ venta.id_venta }}</td>
-                                <td>{{ venta.tipo_id_id }}</td>
-                                <td>{{ venta.fecha_venta }}</td>
-                                <td>{{ venta.cliente_id_id|default:"-" }}</td>
-                                <td>{{ venta.cliente_id_id|default:"-" }}</td>
-                                <td>{{ venta.total|default:"-" }}</td>
+                                <td class="text-center">{{ venta.venta_id }}</td> 
+                                <td>{{ venta.tipo_id.descripcion }}</td> 
+                                <td>{{ venta.fecha_venta|date:"d M, Y" }}</td> 
+                                <td>{{ venta.cliente_id.ruc_dni|default:"-" }}</td> 
+                                <td>{{ venta.cliente_id.nombres }} {{ venta.cliente_id.apellidos }}</td> 
+                                <td>{{ venta.total|floatformat:2|default:"0.00" }}</td> 
+                                <td class="text-center">
+                                        <a href="#" 
+                                           onclick="eliminarVenta('{{ venta.venta_id }}')" 
+                                           class="btn btn-outline-danger">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
@@ -75,7 +81,77 @@
 
 
 <script>
-    
+
+    function eliminarVenta(venta_id) { 
+        Swal.fire({
+            title: '¿Está seguro de eliminar esta venta?',
+            text: "¡Esta acción eliminará la venta de forma permanente y no se podrá recuperar!",
+            icon: 'warning', 
+            showCancelButton: true,
+            confirmButtonColor: '#d33', 
+            cancelButtonColor: '#6c757d', 
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                
+                const csrftoken = getCookie('csrftoken');
+
+                $.ajax({
+                    url: `/ventas/ventas/eliminar/${venta_id}/`, 
+                    type: 'POST', 
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire(
+                                '¡Eliminada!',
+                                response.message,
+                                'success'
+                            ).then(() => {
+                                location.reload(); 
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                response.message || 'Hubo un error al eliminar la venta.',
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Ocurrió un error en el servidor al eliminar.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 403) { 
+                            errorMessage = "No autorizado. Recargue la página e intente de nuevo.";
+                        }
+                        Swal.fire(
+                            'Error de Conexión',
+                            errorMessage,
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
+
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
     
     $(document).ready(function() {
         $('#tablasubfamilias').DataTable({

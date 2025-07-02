@@ -1,18 +1,35 @@
+
+import traceback
 from django.shortcuts import render,redirect
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+
+
+from django.http import  JsonResponse
+from  django.views.decorators.csrf import csrf_exempt
+import json
+from decimal import Decimal
+from datetime import date
+
 from ventasapp.models import Categoria
 from ventasapp.models import Cliente
 from ventasapp.models import Unidades
 from ventasapp.models import Productos
-from ventasapp.models import cabeceraVentas
+from ventasapp.models import cabeceraVentas,Tipo,Parametros,detalleVentas
+
 from django.db.models import Q
 from .forms import CategoriaForm
 from .forms import ClienteForm
 from .forms import UnidadForm
 from .forms import ProductoForm
+from .forms import VentaForm
+from .forms import DetalleVentaForm
 from django.contrib import messages
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
+
+
 @login_required
 def listarcategoria(request):
     queryset = request.GET.get("buscar")
@@ -218,15 +235,208 @@ def eliminarproducto(request, id):
 @login_required
 def listarventas(request):
     queryset = request.GET.get("buscar")
-    venta = cabeceraVentas.objects.filter(estado=True)
+    ventas = cabeceraVentas.objects.filter(estado=True)
     if queryset:
-        venta = venta.filter(
-            Q(total__icontains=queryset) | Q(nrodoc__icontains=queryset), estado=True
+        ventas = ventas.filter(
+            Q(total__icontains=queryset) | Q(nrodoc__icontains=queryset | 
+            Q(cliente__nombres__icontains=queryset) | Q(cliente__apellidos__icontains=queryset) ), estado=True
         ).distinct()
     context = {
-            'ventas':venta}
+            'ventas':ventas}
     return render(request,"movimiento/registro-ventas/listarventas.html",context)
+
 
 @login_required
 def crearventa(request):
-    pass
+    if request.method == 'POST':
+        try:
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({'success': False, 'message': "Error: El cuerpo de la petición no es JSON válido."}, status=400)
+
+            form = VentaForm(data)
+            detalles_data = data.get('detalles', [])
+
+            if form.is_valid():
+                with transaction.atomic():
+                    cliente_obj = form.cleaned_data['cliente']
+                    tipo_obj = form.cleaned_data['tipo']
+                    fecha_venta = form.cleaned_data['fecha_venta']
+                    nrodoc = Parametros.actualizar_numeracion(tipo_obj.pk)
+                    cabecera_venta = cabeceraVentas.objects.create(
+                        cliente_id=cliente_obj,
+                        tipo_id=tipo_obj,
+                        fecha_venta=fecha_venta,
+                        nrodoc=nrodoc,
+                        total=Decimal('0.00'), 
+                        subtotal=Decimal('0.00'),
+                        igv=Decimal('0.00'),
+                        estado=True,
+                    )
+
+                    if not detalles_data: 
+                        pass 
+
+                    total_venta_calculado = Decimal('0.00')
+                    subtotal_venta_calculado = Decimal('0.00')
+                    igv_venta_calculado = Decimal('0.00') 
+
+                    for item_data in detalles_data:
+                        detalle_form = DetalleVentaForm(item_data)
+                        if detalle_form.is_valid():
+                            producto_id = detalle_form.cleaned_data['producto_id']
+                            precio_detalle = detalle_form.cleaned_data['precio']
+                            cantidad_detalle = detalle_form.cleaned_data['cantidad']
+                            importe_detalle = detalle_form.cleaned_data['importe'] 
+
+                            producto = Productos.objects.get(pk=producto_id)
+
+                            if producto.cantidad < cantidad_detalle:
+                                transaction.set_rollback(True) 
+                                return JsonResponse({'success': False, 'message': f"Stock insuficiente para {producto.descripcion}. Disponible: {producto.cantidad}, Solicitado: {cantidad_detalle}"}, status=400)
+
+                            detalleVentas.objects.create(
+                                venta_id=cabecera_venta,
+                                producto_id=producto,
+                                precio=precio_detalle,
+                                cantidad=cantidad_detalle,
+                                importe=importe_detalle
+                            )
+
+                            Productos.actualizar_stock(producto.pk, cantidad_detalle)
+                            
+
+                            subtotal_venta_calculado += importe_detalle
+                            
+                        else:
+                            transaction.set_rollback(True) 
+                            error_detalle_msg = ", ".join([f"{k}: {v[0]}" for k, v in detalle_form.errors.items()])
+                            return JsonResponse({'success': False, 'message': f"Error en el detalle del producto (ID {item_data.get('producto_id', 'N/A')}): {error_detalle_msg}"}, status=400)
+                    
+                    igv_venta_calculado = subtotal_venta_calculado * Decimal('0.18')
+                    total_venta_calculado = subtotal_venta_calculado + igv_venta_calculado
+
+                    cabecera_venta.subtotal = subtotal_venta_calculado
+                    cabecera_venta.igv = igv_venta_calculado
+                    cabecera_venta.total = total_venta_calculado
+                    cabecera_venta.save() 
+
+                messages.success(request, f"Venta {nrodoc} registrada correctamente.")
+                return JsonResponse({'success': True, 'message': f"Venta {nrodoc} registrada correctamente."})
+
+            else: 
+                errors = form.errors.as_json()
+                return JsonResponse({'success': False, 'message': 'Por favor, corrija los errores en el formulario de la venta.', 'errors': json.loads(errors)}, status=400)
+
+        except Productos.DoesNotExist:
+            transaction.set_rollback(True)
+            return JsonResponse({'success': False, 'message': "Error: Uno de los productos seleccionados no existe."}, status=400)
+        except ValueError as ve:
+            transaction.set_rollback(True)
+            return JsonResponse({'success': False, 'message': str(ve)}, status=400)
+        except Exception as e:
+            print("\n--- ERROR INESPERADO EN VISTA crearventa ---")
+            print(f"Tipo de error: {type(e)}")
+            print(f"Mensaje de error: {e}")
+            traceback.print_exc()
+            print("--- FIN ERROR INESPERADO EN VISTA crearventa ---\n")
+            transaction.set_rollback(True) 
+            return JsonResponse({'success': False, 'message': "Ocurrió un error inesperado al guardar la venta."}, status=500)
+    else:
+        form = VentaForm()
+        context = {
+            'form': form,
+            'fecha_actual': date.today().strftime('%d/%m/%Y'),
+        }
+        return render(request, "movimiento/registro-ventas/crearventas.html", context)
+
+@login_required
+@require_POST 
+def eliminarventa(request, pk):
+    try:
+        venta = get_object_or_404(cabeceraVentas, pk=pk)
+        
+        with transaction.atomic():
+            
+            for detalle in venta.detalles.all(): 
+                producto = detalle.producto_id
+                producto.cantidad += detalle.cantidad 
+                producto.save()
+
+            venta.delete() 
+
+        return JsonResponse({'success': True, 'message': f"Venta {venta.nrodoc} eliminada correctamente."})
+    except Exception as e:
+        print(f"Error al eliminar venta {pk}: {e}")
+        return JsonResponse({'success': False, 'message': f'Error al eliminar la venta: {e}'}, status=500)
+
+@login_required
+def obtener_datos_producto(request):
+    """
+    Retorna los datos de un producto (precio, stock, unidad) dado su ID.
+    """
+    producto_id = request.GET.get('producto_id')
+    if not producto_id:
+        return JsonResponse({'error': 'ID de producto no proporcionado'}, status = 400)
+    
+    try:
+        producto =Productos.objects.get(pk=producto_id)
+        data ={
+            'precio': str(producto.precio),
+            'stock' : producto.cantidad,
+            'unidad_descripcion': producto.unidad.descripcion if producto.unidad else '',
+        }
+        return JsonResponse(data)
+    except Productos.DoesNotExist:
+        return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': f'Error interno: {str(e)}'}, status = 500)
+
+@login_required
+def obtener_datos_cliente(request):
+    """
+    Retorna los datos del cliente (ruc_dni, direccion) dado su ID.
+    """
+    cliente_id = request.GET.get('cliente_id')
+    if not cliente_id:
+        return JsonResponse({'error': 'ID de cliente no proporcionado'}, status = 400)
+    
+    try:
+        cliente = Cliente.objects.get(pk=cliente_id)
+        data = {
+            'ruc_dni' : cliente.ruc_dni if cliente.ruc_dni else '',
+            'direccion' : cliente.direccion if cliente.direccion else '',
+            'nombres_completos' : f"{cliente.nombres} {cliente.apellidos}"
+        }
+
+        return JsonResponse(data)
+    except Cliente.DoesNotExist:
+        return JsonResponse({'error': 'Cliente no encontrado'}, status = 404)
+    except Exception as e:
+        return JsonResponse({'error' : f'Error interno: {str(e)}'}, status = 500)
+    
+
+@login_required
+def obtener_datos_tipo_documento(request):
+    """
+    Retorna la serie y numeración del documento dado un tipo de documento ID.
+    """
+    tipo_id = request.GET.get('tipo_id')
+    if not tipo_id:
+        return JsonResponse({'error' : 'ID de tipo de documento no proporcionado'}, status = 400)
+    
+    try:
+        parametro = Parametros.objects.filter(tipo_id=tipo_id).first()
+        if not parametro:
+            return JsonResponse({'error': 'Parametro de tipo de documento no encontrado'}, status=404)
+        
+        data = {
+            'serie' : parametro.serie,
+            'numeracion' : parametro.numeracion,
+        }
+        return JsonResponse(data)
+    except Parametros.DoesNotExist:
+        return JsonResponse({'error' : 'Parametro de tipo de documento no encontrado'}, status = 404)
+    except Exception as e:
+        return JsonResponse({'error': f'Error interno: {str(e)}'}, status = 500)
