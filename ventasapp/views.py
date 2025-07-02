@@ -238,13 +238,13 @@ def listarventas(request):
     ventas = cabeceraVentas.objects.filter(estado=True)
     if queryset:
         ventas = ventas.filter(
-            Q(total__icontains=queryset) | Q(nrodoc__icontains=queryset | 
-            Q(cliente__nombres__icontains=queryset) | Q(cliente__apellidos__icontains=queryset) ), estado=True
+            Q(total__icontains=queryset) | Q(nrodoc__icontains=queryset) | Q(tipo_id_id__descripcion__icontains=queryset) |
+            Q(cliente_id__nombres__icontains=queryset) | Q(cliente_id__apellidos__icontains=queryset), estado=True
         ).distinct()
     context = {
-            'ventas':ventas}
-    return render(request,"movimiento/registro-ventas/listarventas.html",context)
-
+        'ventas': ventas
+    }
+    return render(request, "movimiento/registro-ventas/listarventas.html", context)
 
 @login_required
 def crearventa(request):
@@ -440,3 +440,11 @@ def obtener_datos_tipo_documento(request):
         return JsonResponse({'error' : 'Parametro de tipo de documento no encontrado'}, status = 404)
     except Exception as e:
         return JsonResponse({'error': f'Error interno: {str(e)}'}, status = 500)
+
+@login_required
+def verdetalleventa(request,pk):
+    venta = cabeceraVentas.objects.get(pk=pk)
+    context = {
+        'detalle': venta,
+    }
+    return render(request, "movimiento/registro-ventas/detalleventa.html", context)

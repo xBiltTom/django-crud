@@ -50,11 +50,18 @@
                                 <td>{{ venta.cliente_id.nombres }} {{ venta.cliente_id.apellidos }}</td> 
                                 <td>{{ venta.total|floatformat:2|default:"0.00" }}</td> 
                                 <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'ventas:detalleventa' venta.venta_id %}" 
+                                           class="btn btn-outline-primary" style="border-color: #1e3947; color: #1e3947;">
+                                            <i class="fas fa-edit"></i> Ver detalle
+                                        </a>
                                         <a href="#" 
                                            onclick="eliminarVenta('{{ venta.venta_id }}')" 
                                            class="btn btn-outline-danger">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </a>
+                                    </div>
+                                        
                                 </td>
                             </tr>
                             {% endfor %}
@@ -159,7 +166,7 @@
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
             },
-            dom: '<"top">rt<"bottom"lip><"clear">', 
+            dom: '<"top"f>rt<"bottom"lip><"clear">', 
             pageLength: 5,
             lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"] ],
             initComplete: function() {

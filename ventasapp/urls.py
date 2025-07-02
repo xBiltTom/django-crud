@@ -41,6 +41,7 @@ urlpatterns += [
     path('ventas/eliminar/<int:pk>/', views.eliminarventa, name='eliminarventa'),
     path('api/obtener_datos_producto/', obtener_datos_producto, name = 'api_obtener_datos_producto'),
     path('api/obtener_datos_cliente/', obtener_datos_cliente, name = 'api_obtener_datos_cliente'),
-    path('api/obtener_datos_tipo_documento/', obtener_datos_tipo_documento, name= 'api_obtener_datos_tipo_documento')
+    path('api/obtener_datos_tipo_documento/', obtener_datos_tipo_documento, name= 'api_obtener_datos_tipo_documento'),
+    path('ventas/detalle/<int:pk>',views.verdetalleventa,name='detalleventa'),
     
 ]
