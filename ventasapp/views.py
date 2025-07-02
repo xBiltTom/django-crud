@@ -3,7 +3,7 @@ import traceback
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-
+from django.utils import timezone
 
 from django.http import  JsonResponse
 from  django.views.decorators.csrf import csrf_exempt
@@ -28,7 +28,10 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 
-
+from django.template.loader import get_template
+from django.http import HttpResponse
+from weasyprint import HTML
+from io import BytesIO
 
 @login_required
 def listarcategoria(request):
@@ -448,3 +451,17 @@ def verdetalleventa(request,pk):
         'detalle': venta,
     }
     return render(request, "movimiento/registro-ventas/detalleventa.html", context)
+
+@login_required
+def generarpdf(request, pk):
+    venta = cabeceraVentas.objects.get(pk=pk)
+    template = get_template('movimiento/registro-ventas/detallepdf.html')  # Ruta correcta de la plantilla
+    context = {
+        'detalle': venta,
+        'ahora': timezone.localtime(),
+    }
+    html = template.render(context)  # Renderiza la plantilla con el contexto
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="venta_{venta.nrodoc}.pdf"'
+    HTML(string=html).write_pdf(response)  # Genera el PDF con WeasyPrint
+    return response

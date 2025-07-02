@@ -30,8 +30,8 @@
                 <table id="tablasubfamilias" class="table table-hover" style="width:100%">
                     <thead style="background-color: #f4f4f4;">
                         <tr>
-                            <th style="color: #1e3947;">CÓDIGO</th>
-                            <th style="color: #1e3947;">DESCRIPCIÓN</th> 
+                            <th style="color: #1e3947;">OPERACION</th>
+                            <th style="color: #1e3947;">TIPO</th> 
                             <th style="color: #1e3947;">FECHA</th>
                             <th style="color: #1e3947;">RUC/DNI</th> 
                             <th style="color: #1e3947;">NOMBRES/RAZÓN</th> 
@@ -43,7 +43,7 @@
                         {% if ventas %}
                             {% for venta in ventas %}
                             <tr>
-                                <td class="text-center">{{ venta.venta_id }}</td> 
+                                <td>{{ venta.nrodoc }}</td> 
                                 <td>{{ venta.tipo_id.descripcion }}</td> 
                                 <td>{{ venta.fecha_venta|date:"d M, Y" }}</td> 
                                 <td>{{ venta.cliente_id.ruc_dni|default:"-" }}</td> 
