@@ -127,8 +127,10 @@
       </div>
 
       <div class="totales mt-4 text-end">
+        {% if detalle.tipo_id_id == 1 %}
         <p><strong>Subtotal:</strong> S/. {{ detalle.subtotal }}</p>
         <p><strong>IGV (18%):</strong> S/. {{ detalle.igv }}</p>
+        {% endif %}
         <p><strong>Total:</strong> <span class="text-primary fw-bold">S/. {{ detalle.total }}</span></p>
       </div>
       <div class="text-end mt-5">

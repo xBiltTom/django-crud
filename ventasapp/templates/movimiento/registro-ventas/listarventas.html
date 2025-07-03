@@ -53,12 +53,12 @@
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="{% url 'ventas:detalleventa' venta.venta_id %}" 
                                            class="btn btn-outline-primary" style="border-color: #1e3947; color: #1e3947;">
-                                            <i class="fas fa-edit"></i> Ver detalle
+                                            <i class="fas fa-circle-info"></i> Ver detalle
                                         </a>
                                         <a href="#" 
                                            onclick="eliminarVenta('{{ venta.venta_id }}')" 
                                            class="btn btn-outline-danger">
-                                            <i class="fas fa-trash"></i> Eliminar
+                                            <i class="fas fa-cancel"></i> Anular
                                         </a>
                                     </div>
                                         
@@ -91,13 +91,13 @@
 
     function eliminarVenta(venta_id) { 
         Swal.fire({
-            title: '¿Está seguro de eliminar esta venta?',
-            text: "¡Esta acción eliminará la venta de forma permanente y no se podrá recuperar!",
+            title: '¿Está seguro de anular esta venta?',
+            text: "",
             icon: 'warning', 
             showCancelButton: true,
             confirmButtonColor: '#d33', 
             cancelButtonColor: '#6c757d', 
-            confirmButtonText: 'Sí, eliminar',
+            confirmButtonText: 'Sí, anular',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -105,13 +105,13 @@
                 const csrftoken = getCookie('csrftoken');
 
                 $.ajax({
-                    url: `/ventas/ventas/eliminar/${venta_id}/`, 
+                    url: `eliminar/${venta_id}/`, 
                     type: 'POST', 
                     headers: {'X-CSRFToken': csrftoken}, 
                     success: function(response) {
                         if (response.success) {
                             Swal.fire(
-                                '¡Eliminada!',
+                                '¡Anulada!',
                                 response.message,
                                 'success'
                             ).then(() => {

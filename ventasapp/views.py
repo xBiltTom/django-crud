@@ -310,15 +310,15 @@ def crearventa(request):
                             Productos.actualizar_stock(producto.pk, cantidad_detalle)
                             
 
-                            subtotal_venta_calculado += importe_detalle
+                            total_venta_calculado += importe_detalle
                             
                         else:
                             transaction.set_rollback(True) 
                             error_detalle_msg = ", ".join([f"{k}: {v[0]}" for k, v in detalle_form.errors.items()])
                             return JsonResponse({'success': False, 'message': f"Error en el detalle del producto (ID {item_data.get('producto_id', 'N/A')}): {error_detalle_msg}"}, status=400)
                     
-                    igv_venta_calculado = subtotal_venta_calculado * Decimal('0.18')
-                    total_venta_calculado = subtotal_venta_calculado + igv_venta_calculado
+                    igv_venta_calculado = total_venta_calculado * Decimal('0.18')
+                    subtotal_venta_calculado = total_venta_calculado - igv_venta_calculado
 
                     cabecera_venta.subtotal = subtotal_venta_calculado
                     cabecera_venta.igv = igv_venta_calculado

@@ -26,6 +26,8 @@
                         <div class="col-md-3">
                             {{ form.nrodoc|as_crispy_field }}
                         </div>
+                        <input type="hidden" id="hidden_tipo_documento" name="tipo">
+                        <input type="hidden" id="hidden_cliente" name="cliente">
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -85,12 +87,12 @@
                                 {# Filas del detalle se insertarán aquí con JavaScript #}
                             </tbody>
                             <tfoot>
-                                <tr>
+                                <tr id="id_subtotal_row">
                                     <td colspan="5" class="text-right font-weight-bold">SUBTOTAL:</td>
                                     <td><input type="text" class="form-control text-right" id="id_subtotal_display" readonly value="0.00"></td>
                                     <td></td>
                                 </tr>
-                                <tr>
+                                <tr id="id_igv_row">
                                     <td colspan="5" class="text-right font-weight-bold">IGV (18%):</td>
                                     <td><input type="text" class="form-control text-right" id="id_igv_display" readonly value="0.00"></td>
                                     <td></td>
@@ -152,7 +154,7 @@
         $('#id_cantidad_producto').on('input', calcularImporteProductoActual); 
 
         
-        $('#btnAgregarProducto').click(agregarProductoADetalle);
+        /* $('#btnAgregarProducto').click(agregarProductoADetalle); */
 
         
         $('#formVenta').submit(function(event) {
@@ -200,7 +202,9 @@
                 data: { 'tipo_id': tipoId },
                 success: function(response) {
                     const serie = response.serie;
-                    const numeracion = response.numeracion;
+                    let num = Number(response.numeracion) + 1;
+
+                    const numeracion = "00000000"+ num.toString().slice(-8);
                     $('#id_nrodoc').val(`${serie}-${numeracion}`);
                 },
                 error: function(xhr, status, error) {
@@ -246,6 +250,58 @@
     }
 
     // --- Funciones para el detalle de la venta ---
+
+    let tipoDocumentoSeleccionado = false;
+let clienteSeleccionado = false;
+
+function validarSeleccionTipoDocumentoYCliente() {
+    const tipoDocumento = $('#id_tipo_documento').val();
+    const cliente = $('#id_cliente_venta').val();
+
+    if (!tipoDocumento) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tipo de Documento no seleccionado',
+            text: 'Por favor, seleccione un tipo de documento antes de agregar productos.',
+        });
+        return false;
+    }
+
+    if (!cliente) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cliente no seleccionado',
+            text: 'Por favor, seleccione un cliente antes de agregar productos.',
+        });
+        return false;
+    }
+
+    return true;
+}
+
+function bloquearCampos() {
+    // Copiar valores a campos ocultos
+    $('#hidden_tipo_documento').val($('#id_tipo_documento').val());
+    $('#hidden_cliente').val($('#id_cliente_venta').val());
+
+    // Deshabilitar los campos visuales
+    $('#id_tipo_documento').prop('disabled', true);
+    $('#id_cliente_venta').prop('disabled', true);
+}
+
+$('#btnAgregarProducto').click(function () {
+    if (!validarSeleccionTipoDocumentoYCliente()) {
+        return; // Detener si no se seleccionaron ambos campos
+    }
+
+    if (!tipoDocumentoSeleccionado || !clienteSeleccionado) {
+        tipoDocumentoSeleccionado = true;
+        clienteSeleccionado = true;
+        bloquearCampos(); // Bloquear los campos después de agregar el primer producto
+    }
+
+    agregarProductoADetalle(); // Llama a la función para agregar el producto al carrito
+});
 
     function calcularImporteProductoActual() {
         const precio = parseFloat($('#id_precio_producto').val()) || 0;
@@ -347,6 +403,7 @@
         $tbody.empty();
 
         detallesVenta.forEach((item, index) => {
+            
             const newRow = `
                 <tr>
                     <td>${index + 1}</td>
@@ -397,24 +454,41 @@
     }
 
     function calcularTotales() {
-        let subtotal = 0;
+        let total = 0;
         detallesVenta.forEach(item => {
-            subtotal += item.importe;
+            total += item.importe;
         });
 
-        const igv = subtotal * IGV_PERCENTAGE;
-        const total = subtotal + igv;
+        const tipoDocumento = $('#id_tipo_documento').val(); // Obtener el tipo de documento seleccionado
 
+        let igv = 0;
+        let subtotal = total;
+
+        if (tipoDocumento === '1') { // Ajustar según el valor que representa "Factura"
+            // Mostrar las filas de subtotal e IGV
+            $('#id_subtotal_row').show();
+            $('#id_igv_row').show();
+
+            igv = total * IGV_PERCENTAGE; // Calcular IGV para Factura
+            subtotal = total - igv; // Calcular subtotal
+        } else {
+            // Ocultar las filas de subtotal e IGV
+            $('#id_subtotal_row').hide();
+            $('#id_igv_row').hide();
+
+            igv = 0; // IGV es 0 para Boleta
+            subtotal = total; // Subtotal es igual al total
+        }
+
+        // Actualizar los campos de la interfaz
         $('#id_subtotal_display').val(subtotal.toFixed(2));
         $('#id_igv_display').val(igv.toFixed(2));
         $('#id_total_display').val(total.toFixed(2));
 
-        
+        // Actualizar los campos ocultos para enviar al backend
         $('#id_subtotal_venta').val(subtotal.toFixed(2));
         $('#id_igv_venta').val(igv.toFixed(2));
         $('#id_total_venta').val(total.toFixed(2));
-        console.log("detallesVenta:", detallesVenta);
-        console.log("Subtotal:", subtotal, "IGV:", igv, "Total:", total);
     }
 
     
