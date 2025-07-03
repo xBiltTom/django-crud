@@ -46,7 +46,7 @@
                 </table>
             </div>
             <div>
-                <p class="mt-3"><strong>SubTotal: </strong>S/. {{ detalle.subtotal }}, <strong> IGV: </strong>S/. {{ detalle.igv }}, <strong>Total: </strong>S/. {{ detalle.total }}</p>
+                {% if detalle.tipo_id_id == 1 %}<p class="mt-3"><strong>SubTotal: </strong>S/. {{ detalle.subtotal }}, <strong> IGV: </strong>S/. {{ detalle.igv }}, {%endif%}<strong>Total: </strong>S/. {{ detalle.total }}</p>
                 <a href="{% url 'ventas:generarpdf' detalle.venta_id %}" class="btn btn-success block">GENERAR PDF</a>
             </div>
 
